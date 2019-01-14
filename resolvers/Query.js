@@ -140,7 +140,7 @@ const resolverMap = {
           case "glGroup": requested_fields.push("glGroup"); break;
           case "title": requested_fields.push("title"); break;
           case "title2": requested_fields.push("title2"); break;
-          case "jobType": requested_fields.push("jobType"); break;
+          case "job_type": requested_fields.push("jobType"); break;
           case "location": requested_fields.push("location"); break;
           case "keySkills": requested_fields.push("keySkills"); break;
           case "programArea": requested_fields.push("programArea"); break;
