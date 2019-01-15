@@ -133,19 +133,22 @@ const resolverMap = {
           case "department": requested_fields.push("department"); break;
           case "description": requested_fields.push("description"); break;
           case "completionDate": requested_fields.push("completionDate"); break;
-          case "deadlineDate": requested_fields.push("startDate"); break;
+          case "deadlineDate": requested_fields.push("deadlineDate"); break;
+          case "startDate": requested_fields.push("startDate"); break;
           case "state": requested_fields.push("state"); break;
           case "english": requested_fields.push("english"); break;
           case "french": requested_fields.push("french"); break;
           case "glGroup": requested_fields.push("glGroup"); break;
           case "title": requested_fields.push("title"); break;
           case "title2": requested_fields.push("title2"); break;
-          case "job_type": requested_fields.push("jobType"); break;
+          case "jobType": requested_fields.push("job_type"); break;
+          case "security": requested_fields.push("security"); break;
           case "location": requested_fields.push("location"); break;
           case "keySkills": requested_fields.push("keySkills"); break;
           case "programArea": requested_fields.push("programArea"); break;
           case "roleType": requested_fields.push("roleType"); break;
           case "timeCommitment": requested_fields.push("timeCommitment"); break;
+          case "timeInterval": requested_fields.push("timeInterval"); break;
           default: console.log("invalid field: " + field.name); break;
         }
       });

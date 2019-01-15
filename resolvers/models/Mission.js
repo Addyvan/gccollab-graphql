@@ -20,10 +20,14 @@ class Mission {
       if (field === "last_action" || field === "last_login") {
         field = "FROM_UNIXTIME(" + field + ") as " + field;
       }
-      if (array_index < requestedFields.length - 1) {
-        requestedFields_string += field + ",";
+      if (field !== "__typename") {
+        if (array_index < requestedFields.length - 1) {
+          requestedFields_string += field + ",";
+        } else {
+          requestedFields_string += field;
+        }
       } else {
-        requestedFields_string += field;
+        requestedFields_string = requestedFields_string.substr(0, requestedFields_string.length -1);
       }
       
     });
@@ -49,12 +53,14 @@ class Mission {
     
     var requestedFields_string = "";
     requestedFields.map((field, array_index) => {
-      
-      if (array_index < requestedFields.length - 1) {
-        requestedFields_string += field + ",";
-      } else {
-        requestedFields_string += field;
+      if (field !== "__typename") {
+        if (array_index < requestedFields.length - 1) {
+          requestedFields_string += field + ",";
+        } else {
+          requestedFields_string += field;
+        }
       }
+      
       
     });
 
@@ -122,6 +128,9 @@ class Mission {
         output.push(current);
         current = {"guid": row["guid"], "ownerGuid": row["ownerGuid"]};
       } else {
+        if (row["value"].substr(0,9) === "missions:") {
+          row["value"] = row["value"].substr(9, row["value"].length - 9);
+        }
         switch(row["name"]) {
           case "descriptor": current["description"] = row["value"]; break;
           case "completion_date": current["completionDate"] = row["value"]; break;
@@ -130,6 +139,7 @@ class Mission {
           case "job_title": current["title"] = row["value"]; break;
           case "key_skills": current["keySkills"] = row["value"]; break;
           case "role_type": current["roleType"] = row["value"]; break;
+          case "job_type": current["jobType"] = row["value"]; break;
           case "program_area": current["programArea"] = row["value"]; break;
           case "gl_group": current["glGroup"] = row["value"]; break;
           case "gl_level": current["glLevel"] = row["value"]; break;
@@ -159,7 +169,8 @@ class Mission {
       return newOutput;
       
     } else {
-      new Promise( ( resolve, reject ) => {resolve(output)});
+     
+      return(output);
     }
   }
 

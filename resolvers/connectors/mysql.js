@@ -21,7 +21,6 @@ class MySQLConnector {
     return new Promise( ( resolve, reject ) => {
       this.connection.query( sql, args, ( err, rows ) => {
         if ( err ) {
-          console.log("SOMETHING IS WROGN !!!");
           console.log(err);
           return reject( err );
         }
