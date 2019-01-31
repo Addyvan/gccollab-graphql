@@ -31,12 +31,9 @@ const typeDefs = gql`
 
   type User {
     guid: ID!
-    name: String
     language: String
-    email: String
     last_action: Date
     last_login: Date
-    #colleagues: [User]
   }
 
   type Query {
@@ -53,11 +50,10 @@ const typeDefs = gql`
 
 `;
 
-
 const resolvers  = require('./resolvers/Query');
 
 const server = new ApolloServer({ typeDefs, resolvers });
 
 server.listen().then(({ url }) => {
-  console.log(`🚀 Server ready at ${url}`)
+  console.log(`🚀 Server ready at ${url}`);
 });

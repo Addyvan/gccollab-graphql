@@ -3,11 +3,11 @@ require("dotenv").config();
 const env = process.env;
 
 const MYSQL_CREDS = {
-  host: env.DB_HOST,
-  user: env.DB_USER,
-  password: env.DB_PASSWORD,
-  database: env.DB_DATABASE_NAME,
-  port: env.DB_PORT
+  host: env.COLLAB_DB_HOST,
+  user: env.COLLAB_DB_USER,
+  password: env.COLLAB_DB_PASSWORD,
+  database: env.COLLAB_DB_DATABASE_NAME,
+  port: env.COLLAB_DB_PORT
 };
 
 exports.MYSQL_CREDS = MYSQL_CREDS;
