@@ -1,13 +1,24 @@
+// Helpers
+var createFieldsObject = require("./helpers/createFieldsObject");
+var getDepartment = require("./helpers/getDepartment");
+var getLocation = require("./helpers/getLocation");
+var getProgramArea = require("./helpers/getProgramArea");
+var formatTimeSeries = require("./helpers/formatTimeSeries");
+
 // Connector
 var MySQLConnector = require('./connectors/mysql');
 
 // Models
 var User = require('./models/User');
+var Group = require('./models/Group');
 var Mission = require('./models/Mission');
 
 var db = new MySQLConnector();
 var user_model = new User(db);
 var mission_model = new Mission(db);
+var group_model = new Group(db);
+
+var moment = require("moment");
 
 const resolverMap = {
 
@@ -16,7 +27,7 @@ const resolverMap = {
       return new Date(value); // value from the client
     },
     __serialize(value) {
-      return moement(value).format('DD-MM-YYYY'); // value sent to the client
+      return moment(value).format('YYYY-MM-DD'); // value sent to the client
     },
     __parseLiteral(ast) {
       if (ast.kind === Kind.INT) {
@@ -28,7 +39,23 @@ const resolverMap = {
 
   Query: {
     
-    description: () => `This is an API for accessing data on GCconnex using GraphQL`,
+    description: () => `This is an API for accessing data on GCcollab using GraphQL`,
+
+    summary: async (root, args, context, info) => {
+      var results = {};
+      var numUsers = await user_model.getNumUsers();
+      var numGroups = await group_model.getNumGroups();
+      var usersTimeSeries = await user_model.getUsersTimeSeries();
+      var groupsTimeSeries = await group_model.getGroupsTimeSeries();
+
+      results = {
+        numUsers: numUsers,
+        numGroups: numGroups,
+        usersTimeSeries: formatTimeSeries(usersTimeSeries),
+        groupsTimeSeries: formatTimeSeries(groupsTimeSeries)
+      };
+      return results;
+    },
 
     user: async (root, args, context, info) => {
       var results = {};
@@ -119,11 +146,91 @@ const resolverMap = {
       
       return(results);
     },
+
+    group: async (root, args, context, info) => {
+      var results = {};
+      var fields = createFieldsObject(info);
+      var group_fields = [];
+
+      fields.map((field) => {
+
+        if ( field.name === 'guid' ) {
+
+          if ( args.guid ) {
+            results.guid = args.guid;
+          } else {
+            group_fields.push('guid');
+          }
+
+        }
+
+        if ( field.name === 'name' ) {
+          
+          if ( args.name ) {
+            results.name = args.name;
+          } else {
+            group_fields.push('name');
+          }
+
+        }
+
+        if ( field.name === 'description' ) {
+          
+          if ( args.description ) {
+            results.description = args.description;
+          } else {
+            group_fields.push('description');
+          }
+
+        }
+
+        if ( field.name === 'members' ) {
+          
+          results.members = group_model.getMembers(args, field.subFields);
+          
+        }
+
+      });
+
+      group_results = await group_model.getGroup(args, group_fields);
+      
+      group_fields.map((field) => {
+        results[field] = group_results[0][field];
+      });
+        
+      return(results);
+    },
+
     missions: async (root, args, context, info) => {
       var fields = createFieldsObject(info);
       var requested_fields = [];
+      var requested_args = {};
       var owner_fields = []; // stores any fields in elggusers_entity
       var output = {};
+
+      if (args.department) {
+        requested_args["department"] = getDepartment(args.department);
+      }
+
+      if (args["location"]) {
+        requested_args["location"] = getLocation(args["location"]);
+      }
+
+      if (args.programArea) {
+        requested_args["programArea"] = getProgramArea(args.programArea);
+      }
+
+      if (args.roleType) {
+        if (args.roleType === "OFFERING")
+          requested_args["roleType"] = "offering";
+        else {
+          if(args.roleType === "SEEKING") {
+            requested_args["roleType"] = "seeking";
+          } else {
+            requested_args["roleType"] = "both";
+          }
+        }  
+      }
       
       fields.map((field) => {
         switch(field.name) {
@@ -149,13 +256,139 @@ const resolverMap = {
           case "roleType": requested_fields.push("roleType"); break;
           case "timeCommitment": requested_fields.push("timeCommitment"); break;
           case "timeInterval": requested_fields.push("timeInterval"); break;
+          case "__typename": break;
           default: console.log("invalid field: " + field.name); break;
         }
       });
 
-      output = await mission_model.getAllMissions(requested_fields, owner_fields);
+      if (requested_args !== {}) {
+        output = await mission_model.getMissions(requested_args, requested_fields, owner_fields);
+      } else {
+        output = await mission_model.getAllMissions(requested_fields, owner_fields);
+      }
 
       return (output);
+    },
+
+    enumMetaData: (root, args, context, info) => { 
+      
+      if (args.enum == "MISSION_ROLE_TYPE") {
+        return(["OFFERING", "SEEKING", "BOTH"]);
+      }
+      
+      if (args.enum == "MISSION_PROGRAM_AREA") {
+        return([
+          "ADMINISTRATION", 
+          "CLIENT_SERVICE",
+          "LEGAL_AND_OR_REGULATORY",
+          "SECURITY_AND_OR_ENFORCEMENT",
+          "HUMAN_RESOURCES",
+          "POLICY",
+          "COMMUNICATIONS",
+          "SCIENCE",
+          "INFORMATION_TECHNOLOGY",
+          "OTHER",
+          "ALL"
+        ]);
+      }
+
+      if (args.enum == "MISSION_LOCATION") {
+        return([
+          "BRITISH_COLUMBIA",
+          "ALBERTA",
+          "SASKATCHEWAN",
+          "MANITOBA",
+          "ONTARIO",
+          "QUEBEC",
+          "NATIONAL_CAPITAL_REGION",
+          "NEW_BRUNSWICK",
+          "NOVA_SCOTIA",
+          "ALL"
+        ]);
+      }
+
+      if (args.enum == "DEPARTMENT") {
+        return([
+          "TREASURY_BOARD_SECRETARIAT",
+          "SHARED_SERVICES_CANADA",
+          "GLOBAL_AFFAIRS_CANADA",
+          "CARLETON_UNIVERSITY",
+          "UNIVERSITY_OF_OTTAWA",
+          "EMPLOYMENT_AND_SOCIAL_DEVELOPMENT_CANADA",
+          "IMMIGRATION_REFUGEES_AND_CITIZENSHIP_CANADA",
+          "NATURAL_RESOURCES_CANADA",
+          "PARKS_CANADA",
+          "NATIONAL_DEFENCE",
+          "CANADA_BORDER_SERVICES_AGENCY",
+          "INDIGENOUS_AND_NORTHERN_AFFAIRS_CANADA",
+          "PUBLIC_SERVICES_AND_PROCUREMENT_CANADA",
+          "AGRICULTURE_AND_AGRIFOOD_CANADA",
+          "STUDENT",
+          "DEPARTMENT_OF_JUSTICE_CANADA",
+          "FISHERIES_AND_OCEANS",
+          "CANADIAN_FOOD_INSPECTION_AGENCY",
+          "CANADA_REVENUE_AGENCY",
+          "PUBLIC_SERVICE_COMMISSION_OF_CANADA",
+          "INNOVATION_SCIENCE_AND_ECONOMIC_DEVELOPMENT_CANADA",
+          "PRIVY_COUNCIL_OFFICE",
+          "ENVIRONMENT_AND_CLIMATE_CHANGE_CANADA",
+          "HEALTH_CANADA",
+          "VETERANS_AFFAIRS_CANADA",
+          "PUBLIC_SAFETY_CANADA",
+          "SENATE_OF_CANADA",
+          "DEPARMENT_OF_FINANCE_CANADA",
+          "WESTERN_ECOCONOMIC_DIVERSIFICATION_CANADA",
+          "CANADIAN_HERITAGE",
+          "ELECTIONS_CANADA",
+          "TRANSPORT_CANADA",
+          "CANADA_SCHOOL_OF_PUBLIC_SERVICE",
+          "SERVICE_CANADA",
+          "COURTS_ADMINISTRATION_SERVICE",
+          "STATISTICS_CANADA",
+          "CORRECTIONAL_SERVICE_CANADA",
+          "NATIONAL_FILM_BOARD",
+          "PAROLE_BOARD_OF_CANADA",
+          "LIBRARY_AND_ARCHIVES_CANADA",
+          "CANADA_ECONOMIC_DEVELOPMENT_FOR_QUEBEC_REGIONS",
+          "MILITARY_POLICE_COMPLAINTS_COMMISSION_OF_CANADA",
+          "CANADIAN_RADIO_TELEVISION_AND_TELECOMMUNICATIONS_COMMISSION",
+          "CANADIAN_INSTITUTE_OF_HEALTH_RESEARCH",
+          "PUBLIC_HEALTH_AGENCY_OF_CANADA",
+          "CANADA_COUNCIL_FOR_THE_ARTS",
+          "CANADIAN_HUMAN_RIGHTS_COMMISSION",
+          "QUEENS_UNIVERSITY",
+          "CANADIAN_COAST_GUARD",
+          "ABORIGINAL_BUSINESS_CANADA",
+          "NATIONAL_CAPITAL_COMMISSION",
+          "INFRASTRUCTURE_CANADA",
+          "OFFICE_OF_THE_SUPERINTENDENT_OF_BANKRUPTCY_CANADA",
+          "DEFENCE_RESEARCH_AND_DEVELOPMENT_CANADA",
+          "CANADIAN_ENVIRONMENTAL_ASSESSMENT_AGENCY",
+          "CROWN_INDIGENOUS_RELATIONS_AND_NORTHERN_AFFAIRS_CANADA",
+          "OFFICE_OF_THE_AUDITOR_GENERAL_OF_CANADA",
+          "ROYAL_CANADIAN_NAVY",
+          "COMPETITION_BUREAU_CANADA",
+          "ALGONQUIN_COLLEGE",
+          "POLICY_HORIZONS_CANADA",
+          "SUPREME_COURT_OF_CANADA",
+          "OFFICE_OF_THE_SECRETARY_TO_THE_GOVERNOR_GENERAL",
+          "NATIONAL_RESEARCH_COUNCIL_CANADA",
+          "PASSPORT_CANADA",
+          "ROYAL_CANADIAN_MOUNTED_POLICE",
+          "POLAR_KNOWLEDGE_CANADA",
+          "CANADIAN_SPACE_AGENCY",
+          "YORK_UNIVERSITY",
+          "CANADA_EMPLOYMENT_INSURANCE_COMMISSION",
+          "HOUSE_OF_COMMONS",
+          "OFFICE_OF_THE_COMMISSIONER_OF_OFFICIAL_LANGUAGES",
+          "CANADIAN_INTELLECTUAL_PROPERTY_OFFICE",
+          "ADMINISTRATIVE_TRIBUNALS_SUPPORT_SERVICE_OF_CANADA",
+          "IMMIGRATION_AND_REFUGEE_BOARD_OF_CANADA",
+          "NOT_SPECIFIED_AND_OTHER",
+          "ALL"
+        ]);
+      }
+
     }
     
   }
@@ -163,108 +396,5 @@ const resolverMap = {
 
 
 };
-
-/**
- * Function to parse fields object and return list
- * @param {info} - GraphQL info object
- * @todo implement recursive parsing for deeply nested queries
- */
-function createFieldsObject(info) {
-  var i = 1;
-  rootNode = {name:"root", children: []};
-  currentParent = null;
-  leaves = [];
-
-  function traverseSelection( selection ) {
-
-    if ( selection.selectionSet ) {
-      if (!currentParent) {
-        currentParent = { 
-          name: selection.name.value,
-          parent: rootNode,
-          children: []
-        };
-        rootNode.children.push(currentParent);
-      } else {
-        currentParent = { 
-          name: selection.name.value,
-          parent: currentParent,
-          children: []
-        };
-      }
-      
-      
-      selection.selectionSet.selections.map( (selection) => traverseSelection(selection) );
-    } else {
-      if (!currentParent) {
-        leaf = {
-          name: selection.name.value,
-          parent: rootNode,
-          children: null
-        };
-        rootNode.children.push(leaf);
-        leaves.push(leaf);
-      } else {
-        var leaf = {
-          name: selection.name.value,
-          parent: currentParent,
-          children: null
-        };
-        currentParent.children.push(leaf);
-        leaves.push(leaf);
-      }
-    }
-
-  }
-  
-  // START ON EACH ROOT NODE
-  info.fieldNodes[0].selectionSet.selections.map((rootSelection) => {
-    traverseSelection(rootSelection);
-  });
-
-
-  var visitFunction = (name) => {console.log(name);};
-  /**
-   * 
-   * @param {*} node The node in currently in question (Start with the root!)
-   * @param {*} fn The visit function to be called
-   */
-  function PostOrderTreeTraversal(node, callback) {
-    //visit the node
-    if (node.children) {
-      node.children.map((child) => PostOrderTreeTraversal(child, visitFunction));
-      callback(node.name);
-    }
-    else {
-      callback(node.name + " *leaf*");
-    }
-    
-  }
-  
-  PostOrderTreeTraversal(rootNode, visitFunction);
-  
-  
-  var fields = [];
-
-  info.fieldNodes[0].selectionSet.selections.map((fieldObj) => {
-        
-    if (fieldObj.selectionSet) {
-      var subselections = [];
-      fieldObj.selectionSet.selections.map((fieldobj) => {
-        subselections.push(fieldobj.name.value);
-      });
-      fields.push({
-        name: fieldObj.name.value,
-        subFields: subselections
-      });
-    } else {
-      fields.push({name: fieldObj.name.value});
-    }
-
-  });
-  
-  return fields;
-
-}
 
 module.exports = resolverMap;

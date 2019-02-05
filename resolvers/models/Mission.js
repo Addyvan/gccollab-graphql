@@ -64,9 +64,8 @@ class Mission {
       
     });
 
-    // This needs to be a promise to work!
     return new Promise( ( resolve, reject ) => {
-      var mission = this.mysql_db.query(
+      this.mysql_db.query(
         `
         SELECT e.guid as guid, from_unixtime(e.time_created) as createdAt, from_unixtime(e.time_updated) as updatedAt, e.owner_guid as ownerGuid, ms.string as name, ms1.string as value FROM (SELECT * FROM elggentities WHERE subtype = 52) e
         JOIN elggmetadata md ON md.entity_guid = e.guid
@@ -78,35 +77,60 @@ class Mission {
     });
   }
 
-  async getMission(args, requestedFields, owner_fields) {
+  async getMissions(args, requestedFields, owner_fields) {
     
     var requestedFields_string = "";
     requestedFields.map((field, array_index) => {
-      
-      if (array_index < requestedFields.length - 1) {
-        requestedFields_string += field + ",";
-      } else {
-        requestedFields_string += field;
+      if (field !== "__typename") {
+        if (array_index < requestedFields.length - 1) {
+          requestedFields_string += field + ",";
+        } else {
+          requestedFields_string += field;
+        }
       }
       
     });
 
-    // This needs to be a promise to work!
     return new Promise( ( resolve, reject ) => {
-      var mission = this.mysql_db.query(
+      this.mysql_db.query(
         `
         SELECT e.guid as guid, from_unixtime(e.time_created) as createdAt, from_unixtime(e.time_updated) as updatedAt, e.owner_guid as ownerGuid, ms.string as name, ms1.string as value FROM (SELECT * FROM elggentities WHERE subtype = 52) e
         JOIN elggmetadata md ON md.entity_guid = e.guid
         JOIN elggmetastrings ms ON ms.id = md.name_id
         JOIN elggmetastrings ms1 ON ms1.id = md.value_id
-        WHERE e.owner_guid = ${args.guid}
         `
-      ).then(result => this.parseMissionData(result, requestedFields, owner_fields))
-      .then(result => resolve( result[0] ) );
+      ).then(result => this.parseMissionData(result, requestedFields, owner_fields, args))
+      .then(result => resolve( result ) );
     });
   }
 
-  async parseMissionData(rows, requestedFields, owner_fields) {
+  validateMission(mission, args) {
+    var valid = true;
+
+    if (args.department) {
+      if( !(args.department.includes(mission["department_path_english"]) || args.department.includes(mission["department_path_french"])) && !(args["department"].includes("all")) ) {
+        valid = false;
+      }
+    }
+    if (args["location"]) {
+      if (args["location"] !== mission["location"] && args["location"] !== "all" ) {
+        valid = false;
+      }
+    }
+    if (args["programArea"]) {
+      if (args["programArea"] !== mission["programArea"] && args["programArea"] !== "all" ) {
+        valid = false;
+      }
+    }
+    if (args["roleType"]) {
+      if (args["roleType"] !== mission["roleType"] && args["roleType"] !== "both") {
+        valid = false;
+      }
+    }
+    return valid;
+  }
+
+  async parseMissionData(rows, requestedFields, owner_fields, args) {
     var output = [];
     if (requestedFields.indexOf("owner") > -1) {
       var owner_guid_list = [];
@@ -120,12 +144,25 @@ class Mission {
         current["ownerGuid"] = row["ownerGuid"]
       }
       if (current["guid"] !== row["guid"]) {
-        current["createdAt"] = this.formatDate(row["createdAt"]);
-        current["updatedAt"] = this.formatDate(row["updatedAt"]);
-        if (owner_guid_list) {
-          owner_guid_list.push(current["ownerGuid"]);
+
+        // filter out department
+        if (args.department || args["location"] || args.programArea || args.roleType) {
+          if (this.validateMission(current, args)) {
+            current["createdAt"] = this.formatDate(row["createdAt"]);
+            current["updatedAt"] = this.formatDate(row["updatedAt"]);
+            if (owner_guid_list) {
+              owner_guid_list.push(current["ownerGuid"]);
+            }
+            output.push(current);
+          }
+        } else {
+          current["createdAt"] = this.formatDate(row["createdAt"]);
+          current["updatedAt"] = this.formatDate(row["updatedAt"]);
+          if (owner_guid_list) {
+            owner_guid_list.push(current["ownerGuid"]);
+          }
+          output.push(current);
         }
-        output.push(current);
         current = {"guid": row["guid"], "ownerGuid": row["ownerGuid"]};
       } else {
         if (row["value"].substr(0,9) === "missions:") {

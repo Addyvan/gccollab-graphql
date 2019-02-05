@@ -1,0 +1,88 @@
+function getDepartment(DEPARTMENT_ENUM) {
+  var output = [];
+
+  switch(DEPARTMENT_ENUM) {
+    case "TREASURY_BOARD_SECRETARIAT": output.push("Treasury Board of Canada Secretariat"); break;
+    case "SHARED_SERVICES_CANADA": output.push("Shared Services Canada"); break;
+    case "GLOBAL_AFFAIRS_CANADA": output.push("Global Affairs Canada"); break;
+    case "CARLETON_UNIVERSITY": output.push("Carleton University"); break;
+    case "UNIVERSITY_OF_OTTAWA": output.push("University of Ottawa", "Université d'Ottawa"); break;
+    case "EMPLOYMENT_AND_SOCIAL_DEVELOPMENT_CANADA": output.push("Employment and Social Development Canada"); break;
+    case "IMMIGRATION_REFUGEES_AND_CITIZENSHIP_CANADA": output.push("Immigration, Refugees and Citizenship Canada"); break;
+    case "NATURAL_RESOURCES_CANADA": output.push("Natural Resources Canada"); break;
+    case "PARKS_CANADA": output.push("Parks Canada"); break;
+    case "NATIONAL_DEFENCE": output.push("National Defence"); break;
+    case "CANADA_BORDER_SERVICES_AGENCY": output.push("Canada Border Services Agency"); break;
+    case "INDIGENOUS_AND_NORTHERN_AFFAIRS_CANADA": output.push("Indigenous and Northern Affairs Canada"); break;
+    case "PUBLIC_SERVICES_AND_PROCUREMENT_CANADA": output.push("Public Services and Procurement Canada"); break;
+    case "AGRICULTURE_AND_AGRIFOOD_CANADA": output.push("Agriculture and Agri-Food Canada"); break;
+    case "STUDENT": output.push("Student"); break;
+    case "DEPARTMENT_OF_JUSTICE_CANADA": output.push("Justice Canada (Department of)"); break;
+    case "FISHERIES_AND_OCEANS": output.push("Fisheries and Oceans Canada"); break;
+    case "CANADIAN_FOOD_INSPECTION_AGENCY": output.push("Canadian Food Inspection Agency"); break;
+    case "CANADA_REVENUE_AGENCY": output.push("Canada Revenue Agency"); break;
+    case "PUBLIC_SERVICE_COMMISSION_OF_CANADA": output.push("Public Service Commission of Canada"); break;
+    case "INNOVATION_SCIENCE_AND_ECONOMIC_DEVELOPMENT_CANADA": output.push("Innovation, Science and Economic Development Canada"); break;
+    case "PRIVY_COUNCIL_OFFICE": output.push("Privy Council Office"); break;
+    case "ENVIRONMENT_AND_CLIMATE_CHANGE_CANADA": output.push("Environment and Climate Change Canada"); break;
+    case "HEALTH_CANADA": output.push("Health Canada"); break;
+    case "VETERANS_AFFAIRS_CANADA": output.push("Veterans Affairs Canada"); break;
+    case "PUBLIC_SAFETY_CANADA": output.push("Public Safety Canada"); break;
+    case "SENATE_OF_CANADA": output.push("Senate of Canada"); break;
+    case "DEPARMENT_OF_FINANCE_CANADA": output.push("Finance Canada (Department of)"); break;
+    case "WESTERN_ECOCONOMIC_DIVERSIFICATION_CANADA": output.push("Western Economic Diversification Canada"); break;
+    case "CANADIAN_HERITAGE": output.push("Canadian Heritage", "Patrimoine canadien"); break;
+    case "ELECTIONS_CANADA": output.push("Elections Canada", "Élections Canada"); break;
+    case "TRANSPORT_CANADA": output.push("Transport Canada"); break;
+    case "CANADA_SCHOOL_OF_PUBLIC_SERVICE": output.push("Canada School of Public Service"); break;
+    case "SERVICE_CANADA": output.push("Service Canada"); break;
+    case "COURTS_ADMINISTRATION_SERVICE": output.push("Courts Administration Service"); break;
+    case "STATISTICS_CANADA": output.push("Statistics Canada"); break;
+    case "CORRECTIONAL_SERVICE_CANADA": output.push("Correctional Service Canada"); break;
+    case "NATIONAL_FILM_BOARD": output.push("National Film Board"); break;
+    case "PAROLE_BOARD_OF_CANADA": output.push("Parole Board of Canada"); break;
+    case "LIBRARY_AND_ARCHIVES_CANADA": output.push("Library and Archives Canada"); break;
+    case "CANADA_ECONOMIC_DEVELOPMENT_FOR_QUEBEC_REGIONS": output.push("Canada Economic Development for Quebec Regions"); break;
+    case "MILITARY_POLICE_COMPLAINTS_COMMISSION_OF_CANADA": output.push("Military Police Complaints Commission of Canada"); break;
+    case "CANADIAN_RADIO_TELEVISION_AND_TELECOMMUNICATIONS_COMMISSION": output.push("Canadian Radio-Television and Telecommunications Commission"); break;
+    case "CANADIAN_INSTITUTE_OF_HEALTH_RESEARCH": output.push("Canadian Institutes of Health Research"); break;
+    case "PUBLIC_HEALTH_AGENCY_OF_CANADA": output.push("Public Health Agency of Canada"); break;
+    case "CANADA_COUNCIL_FOR_THE_ARTS": output.push("Canada Council for the Arts"); break;
+    case "CANADIAN_HUMAN_RIGHTS_COMMISSION": output.push("Canadian Human Rights Commission"); break;
+    case "QUEENS_UNIVERSITY": output.push("Queen's University"); break;
+    case "CANADIAN_COAST_GUARD": output.push("Canadian Coast Guard"); break;
+    case "ABORIGINAL_BUSINESS_CANADA": output.push("Aboriginal Business Canada"); break;
+    case "NATIONAL_CAPITAL_COMMISSION": output.push("National Capital Commission"); break;
+    case "INFRASTRUCTURE_CANADA": output.push("Infrastructure Canada"); break;
+    case "OFFICE_OF_THE_SUPERINTENDENT_OF_BANKRUPTCY_CANADA": output.push("Superintendent of Bankruptcy Canada (Office of the)"); break;
+    case "DEFENCE_RESEARCH_AND_DEVELOPMENT_CANADA": output.push("Defence Research and Development Canada"); break;
+    case "CANADIAN_ENVIRONMENTAL_ASSESSMENT_AGENCY": output.push("Canadian Environmental Assessment Agency"); break;
+    case "CROWN_INDIGENOUS_RELATIONS_AND_NORTHERN_AFFAIRS_CANADA": output.push("Crown-Indigenous Relations and Northern Affairs Canada"); break;
+    case "OFFICE_OF_THE_AUDITOR_GENERAL_OF_CANADA": output.push("Auditor General of Canada (Office of the)"); break;
+    case "ROYAL_CANADIAN_NAVY": output.push("Royal Canadian Navy"); break;
+    case "COMPETITION_BUREAU_CANADA": output.push("Competition Bureau Canada"); break;
+    case "ALGONQUIN_COLLEGE": output.push("Algonquin College"); break;
+    case "POLICY_HORIZONS_CANADA": output.push("Policy Horizons Canada"); break;
+    case "SUPREME_COURT_OF_CANADA": output.push("Supreme Court of Canada"); break;
+    case "OFFICE_OF_THE_SECRETARY_TO_THE_GOVERNOR_GENERAL": output.push("Secretary to the Governor General (Office of the)"); break;
+    case "NATIONAL_RESEARCH_COUNCIL_CANADA": output.push("National Research Council Canada"); break;
+    case "PASSPORT_CANADA": output.push("Passport Canada"); break;
+    case "ROYAL_CANADIAN_MOUNTED_POLICE": output.push("Royal Canadian Mounted Police"); break;
+    case "POLAR_KNOWLEDGE_CANADA": output.push("Polar Knowledge Canada"); break;
+    case "CANADIAN_SPACE_AGENCY": output.push("Canadian Space Agency"); break;
+    case "YORK_UNIVERSITY": output.push("York University"); break;
+    case "CANADA_EMPLOYMENT_INSURANCE_COMMISSION": output.push("Canada Employment Insurance Commission"); break;
+    case "HOUSE_OF_COMMONS": output.push("House of Commons"); break;
+    case "OFFICE_OF_THE_COMMISSIONER_OF_OFFICIAL_LANGUAGES": output.push("Commissioner of Official Languages (Office of the)"); break;
+    case "CANADIAN_INTELLECTUAL_PROPERTY_OFFICE": output.push("Canadian Intellectual Property Office"); break;
+    case "ADMINISTRATIVE_TRIBUNALS_SUPPORT_SERVICE_OF_CANADA": output.push("Administrative Tribunals Support Service of Canada"); break;
+    case "IMMIGRATION_AND_REFUGEE_BOARD_OF_CANADA": output.push("Immigration and Refugee Board of Canada"); break;
+    case "NOT_SPECIFIED_AND_OTHER": output.push(""); output.push("n/a"); break;
+    case "ALL": output.push("all"); break;
+    default: console.log("Invalid Department Selection"); break;
+  }
+
+  return (output);
+}
+
+module.exports = getDepartment;
