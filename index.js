@@ -6,13 +6,13 @@ const typeDefs = gql`
 
   type Mission {
     owner: User #
-    createdAt: String #
-    updatedAt: String #
+    createdAt: Date #
+    updatedAt: Date #
     department: String #
     description: String #
-    completionDate: String #
-    deadlineDate: String #
-    startDate: String #
+    completionDate: Date #
+    deadlineDate: Date #
+    startDate: Date #
     state: String #
     english: String #
     french: String #
